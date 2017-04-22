@@ -194,8 +194,11 @@ public class QuickHull {
 		return hull;
 	}
 	
-	
-	public void paintHull(Graphics g, int width, int height) {
+	/**
+	 * Método que dibuja tanto los puntos como la envolvente convexa (si ha sido calculada).
+	 * @param g Objeto Graphics sobre el que se dibujará.
+	 */
+	public void paintHull(Graphics g) {
 		// PINTAR LOS PUNTOS
 		for (PointHull point : getPoints())
 			g.fillOval((int) point.getX(), (int) point.getY(), DEFAULT_POINT_DIAMETER, DEFAULT_POINT_DIAMETER);
