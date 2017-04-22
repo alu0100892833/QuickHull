@@ -58,6 +58,7 @@ public class QuickHull {
 			int y = random.nextInt(heightLimit);
 			this.points.add(new PointHull(x, y));
 		}
+		System.out.println(heightLimit);
 	}
 	
 	/**
@@ -194,7 +195,7 @@ public class QuickHull {
 	}
 	
 	
-	protected void paintComponent(Graphics g, int width, int height) {
+	public void paintHull(Graphics g, int width, int height) {
 		// PINTAR LOS PUNTOS
 		for (PointHull point : getPoints())
 			g.fillOval((int) point.getX(), (int) point.getY(), DEFAULT_POINT_DIAMETER, DEFAULT_POINT_DIAMETER);
