@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.glass.ui.TouchInputSupport;
 
 /**
  * Extensión de la clase punto que se adapta para su uso por el algoritmo QuickHull.

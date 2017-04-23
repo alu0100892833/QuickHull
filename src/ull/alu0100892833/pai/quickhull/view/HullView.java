@@ -10,6 +10,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import org.w3c.dom.events.EventException;
 
@@ -24,13 +25,16 @@ import ull.alu0100892833.pai.quickhull.exceptions.NoPointsException;
  */
 public class HullView extends PointsPanel {
 	private static final long serialVersionUID = 7788499771694586039L;
-	private static final int N_ELEMENTS = 4; 
+	private static final int N_ELEMENTS = 5; 
     private static final int COLS = 1;
     private static final int GAP = 50;
     private static final int TOP_BOTTOM_MARGIN_PROPORTION = 7;
+    private static final int INITIAL_STEP = 1;
+    private static final int ZERO = 0;
     
-	private JButton init, execute, pause, step;
-	private int timeInterval;
+	private JButton init, execute, pause, step, reset;
+	private int timeInterval, currentStep;
+	private Timer timer;
 
 	/**
 	 * Constructor por parámetros.
@@ -41,7 +45,13 @@ public class HullView extends PointsPanel {
 	public HullView(Dimension size, int nPoints, QuickHull hull, int timeInterval) {
 		super(size, nPoints, hull);
 		this.timeInterval = timeInterval;
+		this.currentStep = INITIAL_STEP;
 		addControlsPanel();
+		try {
+			getQuickHull().quickHull();
+		} catch (NoPointsException e) {
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		}
 	}
 	
 	/**
@@ -55,13 +65,17 @@ public class HullView extends PointsPanel {
     	this.execute = new JButton("EXECUTE");
     	this.pause = new JButton("PAUSE");
     	this.step = new JButton("STEP BY STEP");
+    	this.reset = new JButton("RESET");
     	buttonsPanel.add(init);
     	buttonsPanel.add(execute);
     	buttonsPanel.add(pause);
     	buttonsPanel.add(step);
+    	buttonsPanel.add(reset);
     	
     	add(buttonsPanel, BorderLayout.EAST);
-    	addListenerToButtons(new ButtonsListener());
+    	ButtonsListener listener = new ButtonsListener();
+    	addListenerToButtons(listener);
+    	timer = new Timer(timeInterval, listener);
 	}
 	
 	/**
@@ -73,8 +87,33 @@ public class HullView extends PointsPanel {
 		getExecute().addActionListener(al);
 		getPause().addActionListener(al);
 		getStep().addActionListener(al);
+		getReset().addActionListener(al);
 	}
-	
+
+	/**
+	 * Obtener el paso actual de la solución.
+	 * @return
+	 */
+	public int getCurrentStep() {
+		return currentStep;
+	}
+
+	/**
+	 * Modifica el paso actual de la solución.
+	 * @param currentStep
+	 */
+	public void setCurrentStep(int currentStep) {
+		this.currentStep = currentStep;
+	}
+
+	/**
+	 * Getter del timer.
+	 * @return
+	 */
+	public Timer getTimer() {
+		return timer;
+	}
+
 	/**
 	 * Permite obtener una referencia al botón INIT.
 	 * @return
@@ -89,6 +128,14 @@ public class HullView extends PointsPanel {
 	 */
 	public JButton getExecute() {
 		return execute;
+	}
+	
+	/**
+	 * Permite obtener una referencia al botón RESET.
+	 * @return
+	 */
+	public JButton getReset() {
+		return reset;
 	}
 
 	/**
@@ -107,6 +154,10 @@ public class HullView extends PointsPanel {
 		return step;
 	}
 	
+	/**
+	 * Obtener el intervalo de tiempo entre cada paso de la solución.
+	 * @return
+	 */
 	public int getTimeInterval() {
 		return timeInterval;
 	}
@@ -123,30 +174,50 @@ public class HullView extends PointsPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == getInit()) {
-				try {
-					getQuickHull().quickHull();
-					revalidate();
-					repaint();
-				} catch (NoPointsException e1) {
-					JOptionPane.showMessageDialog(null, e1.getMessage());
-					e1.printStackTrace();
-				} 
+				getTimer().start();
 			} else if (e.getSource() == getExecute()) {
-				try {
-					getQuickHull().quickHull();
-					revalidate();
-					repaint();
-				} catch (NoPointsException e1) {
-					JOptionPane.showMessageDialog(null, e1.getMessage());
-					e1.printStackTrace();
-				} 
+				getTimer().stop();
+				getQuickHull().setToFinalSolution();
+				revalidate();
+				repaint();
 			} else if (e.getSource() == getPause()) {
-				
+				getTimer().stop();
 			} else if (e.getSource() == getStep()) {
-				
+				getTimer().stop();
+				showProcess();
+			} else if (e.getSource() == getReset()) {
+				resetView();
+			} else if (e.getSource() == getTimer()) {
+				showProcess();
 			} else
-				throw new EventException((short) 0, "Unexpected Event");
+				throw new EventException((short) ZERO, "Unexpected Event");
 		}
+	}
+	
+	/**
+	 * Método que resetea la vista, eliminando la envolvente convexa y reiniciando el programa.
+	 */
+	private void resetView() {
+		getQuickHull().reset();
+		try {
+			setCurrentStep(INITIAL_STEP);
+			getQuickHull().quickHull();
+			revalidate();
+			repaint();
+		} catch (NoPointsException e1) {
+			JOptionPane.showMessageDialog(null, e1.getMessage());
+			e1.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Este método toma la solución correspondiente al paso actual del objeto quickHull y recarga la ventana para mostrar un paso de la solución.
+	 */
+	private void showProcess() {
+		getQuickHull().changeActiveSolution(getCurrentStep());
+		revalidate();
+		repaint();
+		setCurrentStep(getCurrentStep() + 1);
 	}
 }
 

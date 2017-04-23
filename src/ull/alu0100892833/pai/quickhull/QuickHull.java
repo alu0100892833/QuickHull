@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+
 import java.util.LinkedList;
 
 import ull.alu0100892833.pai.quickhull.exceptions.NoPointsException;
@@ -24,6 +25,7 @@ public class QuickHull {
 	
 	private HashSet<PointHull> points;
 	private ArrayList<PointHull> convexHull; 
+	private ArrayList<ArrayList<PointHull>> steps;
 
 	/**
 	 * Constructor por defecto.
@@ -31,6 +33,7 @@ public class QuickHull {
 	public QuickHull() {
 		points = new HashSet<>();
 		convexHull = new ArrayList<>();
+		steps = new ArrayList<>();
 	}
 	
 	/**
@@ -60,6 +63,10 @@ public class QuickHull {
 		}
 	}
 	
+	public ArrayList<PointHull> getStep(int step) {
+		return steps.get(step - 1);
+	}
+	
 	/**
 	 * Getter de los puntos del plano.
 	 * @return
@@ -75,6 +82,14 @@ public class QuickHull {
 	public ArrayList<PointHull> getConvexHull() {
 		return convexHull;
 	} 
+	
+	/**
+	 * Setter de la convexHull.
+	 * @param convexHull
+	 */
+	public void setConvexHull(ArrayList<PointHull> convexHull) {
+		this.convexHull = convexHull;
+	}
 
 	/**
 	 * Añade un elemento a la convexHull.
@@ -93,11 +108,35 @@ public class QuickHull {
 	}
 	
 	/**
+	 * Resetea el cálculo de la envolvente convexa, eliminando la misma y los pasos del algoritmo.
+	 */
+	public void reset() {
+		convexHull.clear();
+		steps.clear();
+	}
+	
+	/**
+	 * Este método guarda la envolvente convexa actual como un paso en el desarrollo del algoritmo.
+	 */
+	private void newStep() {
+		steps.add(new ArrayList<PointHull>(getConvexHull()));
+	}
+	
+	/**
+	 * Establece como solución activa a la solución final.
+	 */
+	public void setToFinalSolution() {
+		setConvexHull(getStep(steps.size()));
+	}
+	
+	/**
 	 * Algoritmo QuickHull que encuentra la envolvente convexa para el conjunto de puntos almacenado en el HashSet points.
 	 * @throws NoPointsException En el caso de que los puntos no hayan sido definidos.
 	 * @throws InterruptedException Si falla el temporizador.
 	 */
 	public void quickHull() throws NoPointsException {
+		reset();
+		
 		if ((getPoints().isEmpty()) || (getPoints().size() == 1))
 			throw new NoPointsException("No se puede calcular la envolvente convexa en un espacio sin al menos dos puntos.");
 		
@@ -128,9 +167,13 @@ public class QuickHull {
         addToConvexHull(leftMostPoint);
         addToConvexHull(rightMostPoint);
         
+        newStep();
+        
         find(rightOfLine, leftMostPoint, rightMostPoint);
         find(leftOfLine, rightMostPoint, leftMostPoint);
         
+        newStep();
+        setConvexHull(null);
 	}
 	
 	/**
@@ -183,9 +226,23 @@ public class QuickHull {
         addToConvexHull(origin);
         addToConvexHull(end);
         
+        newStep();
+        
         // REPETIR EL PROCESO PARA LOS SUBCONJUNTOS EXTERIORES AL TRIÁNGULO
         find(subSet1, origin, maxDistancePoint);
         find(subSet2, maxDistancePoint, end);
+	}
+	
+	/**
+	 * Este método modifica la actual solución para tomar como convexHull el paso del algoritmo dado por el parámetro.
+	 * Su propósito es el de manejar en todo momento qué solución es la que muestra el procedimiento paintHull.
+	 * @param step
+	 */
+	public void changeActiveSolution(int step) {
+		if (step < 1)
+			throw new IndexOutOfBoundsException("El paso especificado para la solución no existe.");
+		if (step <= steps.size())
+			setConvexHull(getStep(step));
 	}
 	
 	/**
@@ -200,7 +257,8 @@ public class QuickHull {
 		}
 		
 		// DIBUJAR LA ENVOLVENTE CONVEXA
-		drawConvexHull(g);
+		if (getConvexHull() != null)
+			drawConvexHull(g);
 	}
 	
 	/**
