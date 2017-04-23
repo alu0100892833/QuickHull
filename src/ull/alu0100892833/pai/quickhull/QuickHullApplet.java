@@ -25,7 +25,7 @@ public class QuickHullApplet extends JApplet {
 				nPoints = Integer.parseInt(getParameter("NUMBER-OF-POINTS"));
 				timer = Integer.parseInt(getParameter("TIMER"));
 				QuickHull quickHull = new QuickHull();
-				HullView view = new HullView(getSize(), nPoints, quickHull);
+				HullView view = new HullView(getSize(), nPoints, quickHull, timer);
 				add(view);
 			}
 		} catch(Exception e) {
@@ -69,16 +69,14 @@ public class QuickHullApplet extends JApplet {
 	        quickHullFrame.setSize(new Dimension((int) fullScreen.getWidth() / WIDTH_PROPORTION, (int) fullScreen.getHeight() / HEIGHT_PROPORTION));
 	        
 	        QuickHull quickHull = new QuickHull();
-			HullView view = new HullView(quickHullFrame.getSize(), app.nPoints, quickHull);
+			HullView view = new HullView(quickHullFrame.getSize(), app.nPoints, quickHull, app.timer); 
 			quickHullFrame.add(view);
 	        
 	        quickHullFrame.setLocationRelativeTo(null); 
 	        quickHullFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        quickHullFrame.setVisible(true);
-	        System.out.println(quickHullFrame.getHeight());
 		}
 	}
-
 }
 
 
