@@ -2,11 +2,10 @@ package ull.alu0100892833.pai.quickhull.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,10 +24,6 @@ import ull.alu0100892833.pai.quickhull.exceptions.NoPointsException;
  */
 public class HullView extends PointsPanel {
 	private static final long serialVersionUID = 7788499771694586039L;
-	private static final int N_ELEMENTS = 5; 
-    private static final int COLS = 1;
-    private static final int GAP = 50;
-    private static final int TOP_BOTTOM_MARGIN_PROPORTION = 7;
     private static final int INITIAL_STEP = 1;
     private static final int ZERO = 0;
     
@@ -59,20 +54,26 @@ public class HullView extends PointsPanel {
 	 * Establece un borde y añade los botones en la sección EAST del BorderLayout.
 	 */
 	private void addControlsPanel() {
-		JPanel buttonsPanel = new JPanel(new GridLayout(N_ELEMENTS, COLS, GAP, GAP));
-		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(getHeight() / TOP_BOTTOM_MARGIN_PROPORTION, GAP, getHeight() / TOP_BOTTOM_MARGIN_PROPORTION, GAP));
+		JPanel buttonsPanel = new JPanel(new FlowLayout());
 		this.init = new JButton("INIT");
     	this.execute = new JButton("EXECUTE");
     	this.pause = new JButton("PAUSE");
     	this.step = new JButton("STEP BY STEP");
     	this.reset = new JButton("RESET");
+    	
+    	this.init.setName("INIT");
+    	this.execute.setName("EXECUTE");
+    	this.pause.setName("PAUSE");
+    	this.step.setName("STEP");
+    	this.reset.setName("RESET");
+    	
     	buttonsPanel.add(init);
     	buttonsPanel.add(execute);
     	buttonsPanel.add(pause);
     	buttonsPanel.add(step);
     	buttonsPanel.add(reset);
     	
-    	add(buttonsPanel, BorderLayout.EAST);
+    	add(buttonsPanel, BorderLayout.SOUTH);
     	ButtonsListener listener = new ButtonsListener();
     	addListenerToButtons(listener);
     	timer = new Timer(timeInterval, listener);
@@ -171,22 +172,30 @@ public class HullView extends PointsPanel {
 	 * @since 22-4-2017
 	 */
 	class ButtonsListener implements ActionListener {
+		private boolean started = false;
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == getInit()) {
 				getTimer().start();
+				started = true;
 			} else if (e.getSource() == getExecute()) {
 				getTimer().stop();
 				getQuickHull().setToFinalSolution();
 				revalidate();
 				repaint();
 			} else if (e.getSource() == getPause()) {
-				getTimer().stop();
+				if (getTimer().isRunning())
+					getTimer().stop();
+				else if (started)
+					getTimer().start();
 			} else if (e.getSource() == getStep()) {
 				getTimer().stop();
 				showProcess();
 			} else if (e.getSource() == getReset()) {
 				resetView();
+				getTimer().stop();
+				started = false;
 			} else if (e.getSource() == getTimer()) {
 				showProcess();
 			} else

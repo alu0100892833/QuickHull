@@ -17,7 +17,6 @@ import ull.alu0100892833.pai.quickhull.QuickHull;
  */
 public class PointsPanel extends JPanel {
 	private static final long serialVersionUID = -6239480177082564469L;
-	private static final int GAP = 30;
 	
 	private QuickHull quickHull;
 	
@@ -32,7 +31,7 @@ public class PointsPanel extends JPanel {
 		setLayout(new BorderLayout());
 		setSize(size);
 		quickHull = hull;
-		hull.setRandomPoints(nPoints, getWidth() - getWidth() / 4, getHeight() - GAP);
+		hull.setRandomPoints(nPoints, getWidth(), getHeight() - getHeight() / 4);
 	}
 
 	public QuickHull getQuickHull() {

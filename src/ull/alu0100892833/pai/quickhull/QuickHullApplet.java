@@ -18,6 +18,7 @@ public class QuickHullApplet extends JApplet {
 	boolean isStandalone = false;
 	int nPoints, timer;
 	
+
 	@Override
 	public void init() {
 		try {

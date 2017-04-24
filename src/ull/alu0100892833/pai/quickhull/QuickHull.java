@@ -19,7 +19,7 @@ import ull.alu0100892833.pai.quickhull.PointHull;
  * @since 21-4-2017
  */
 public class QuickHull {
-	private static final int DEFAULT_POINT_RADIUS = 5;
+	private static final int DEFAULT_POINT_RADIUS = 4;
 	private static final int DEFAULT_POINT_DIAMETER = 2 * DEFAULT_POINT_RADIUS;
 	private static final int ZERO = 0;
 	
@@ -45,6 +45,7 @@ public class QuickHull {
 	public QuickHull(int nPoints, int sideLimit, int heightLimit) {
 		points = new HashSet<>();
 		convexHull = new ArrayList<>();
+		steps = new ArrayList<>();
 		setRandomPoints(nPoints, sideLimit, heightLimit);
 	}
 	
@@ -90,6 +91,22 @@ public class QuickHull {
 	public void setConvexHull(ArrayList<PointHull> convexHull) {
 		this.convexHull = convexHull;
 	}
+	
+	/**
+	 * Getter de los pasos llevados a cabo por el algoritmo.
+	 * @return steps
+	 */
+	public ArrayList<ArrayList<PointHull>> getSteps() {
+		return steps;
+	}
+	
+	/**
+	 * Devuelve el número de pasos llevados a cabo por el algoritmo.
+	 * @return
+	 */
+	public int getnSteps() {
+		return steps.size();
+	}
 
 	/**
 	 * Añade un elemento a la convexHull.
@@ -111,8 +128,8 @@ public class QuickHull {
 	 * Resetea el cálculo de la envolvente convexa, eliminando la misma y los pasos del algoritmo.
 	 */
 	public void reset() {
-		convexHull.clear();
-		steps.clear();
+		convexHull = new ArrayList<>();
+		steps = new ArrayList<>();
 	}
 	
 	/**
